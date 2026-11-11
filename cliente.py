@@ -1,4 +1,6 @@
 import requests
+from database import crear_tabla, guardar_ticket
+crear_tabla()
 
 url = "http://127.0.0.1:8000/sedes"
 
@@ -29,5 +31,6 @@ for sede in sedes:
         continue
 
     tickets.append(nuevo_ticket)
+    guardar_ticket(nuevo_ticket)
 
 print(f"TICKETS: {tickets}")
