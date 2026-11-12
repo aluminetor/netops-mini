@@ -1,5 +1,9 @@
 import requests
-from database import crear_tabla, guardar_ticket
+from database import (
+    crear_tabla, 
+    guardar_ticket,
+    existe_ticket_abierto
+)
 crear_tabla()
 
 url = "http://127.0.0.1:8000/sedes"
@@ -29,8 +33,9 @@ for sede in sedes:
         nuevo_ticket = crear_ticket(sede, "Prioridad Alta")
     else:
         continue
-
-    tickets.append(nuevo_ticket)
-    guardar_ticket(nuevo_ticket)
+    
+    if not (existe_ticket_abierto(sede["nombre"],"Latencia elevada")):
+        tickets.append(nuevo_ticket)
+        guardar_ticket(nuevo_ticket)
 
 print(f"TICKETS: {tickets}")

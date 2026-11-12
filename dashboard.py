@@ -55,7 +55,11 @@ df = pd.DataFrame(
 conteo = df["Prioridad"].value_counts()
 
 st.subheader("Tickets por prioridad")
-st.bar_chart(conteo)
+
+if not df.empty:
+    st.bar_chart(conteo)
+else:
+    st.info("Todavía no hay incidentes registrados.")
 
 st.subheader("Incidentes registrados")
 st.dataframe(df, use_container_width=True)

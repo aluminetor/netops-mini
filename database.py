@@ -37,3 +37,24 @@ def guardar_ticket(ticket):
     
     conexion.commit()
     conexion.close()
+
+
+def existe_ticket_abierto(sede,tipo):
+    conexion = sqlite3.connect("netops.db")
+    cursor = conexion.cursor()
+
+    cursor.execute("""
+        SELECT EXISTS(
+            SELECT 1
+            FROM tickets
+            WHERE sede = ?
+              AND tipo = ?
+              AND estado = 'Abierto'
+        )
+    """, (sede, tipo))
+
+    resultado = bool(cursor.fetchone()[0])
+
+    conexion.close()
+
+    return resultado
