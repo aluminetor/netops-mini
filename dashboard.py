@@ -12,7 +12,30 @@ st.write("Dashboard de monitoreo de incidentes")
 cursor.execute("SELECT COUNT(*) FROM tickets")
 cantidad_tickets = cursor.fetchone()[0]
 
-st.metric("Tickets registrados", cantidad_tickets)
+cursor.execute(
+    "SELECT COALESCE(AVG(latencia_ms), 0) FROM tickets"
+)
+
+promedio_latencia = cursor.fetchone()[0]
+
+
+cursor.execute(
+    "SELECT COUNT(*) FROM tickets WHERE prioridad = ?",
+    ("Prioridad Alta",)
+)
+count_alta = cursor.fetchone()[0]
+
+
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    st.metric("Tickets registrados", cantidad_tickets)
+
+with col2:
+    st.metric("Latencia media", f"{promedio_latencia:.2f} ms")
+
+with col3:
+    st.metric("Prioridad alta", count_alta)
 
 
 conexion.close()
