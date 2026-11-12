@@ -1,6 +1,6 @@
 import sqlite3
 import streamlit as st
-
+import pandas as pd 
 conexion = sqlite3.connect("netops.db")
 cursor = conexion.cursor()
 
@@ -37,5 +37,7 @@ with col2:
 with col3:
     st.metric("Prioridad alta", count_alta)
 
+cursor.execute("SELECT * FROM tickets")
+tickets = cursor.fetchall()
 
 conexion.close()
