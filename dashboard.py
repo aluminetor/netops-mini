@@ -40,4 +40,25 @@ with col3:
 cursor.execute("SELECT * FROM tickets")
 tickets = cursor.fetchall()
 
+df = pd.DataFrame(
+    tickets,
+    columns=[
+        "ID",
+        "Sede",
+        "Tipo",
+        "Latencia (ms)",
+        "Prioridad",
+        "Estado"
+    ]
+)
+
+conteo = df["Prioridad"].value_counts()
+
+st.subheader("Tickets por prioridad")
+st.bar_chart(conteo)
+
+st.subheader("Incidentes registrados")
+st.dataframe(df, use_container_width=True)
+
+
 conexion.close()
