@@ -22,3 +22,47 @@ netops-mini/
 ├── .env.example     # Ejemplo de variable de entorno (DATABASE_PATH)
 └── .gitignore       # Exclusiones de Git (.env, .venv/, __pycache__/, *.py[cod])
 ```
+
+## Requisitos e instalación
+
+- **Python 3**
+- Dependencias utilizadas por los módulos del proyecto:
+  - `fastapi`
+  - `uvicorn`
+  - `requests`
+  - `streamlit`
+  - `pandas`
+
+### Configuración del entorno
+
+1. Clona el repositorio y entra al directorio del proyecto:
+
+   ```powershell
+   git clone https://github.com/aluminetor/netops-mini.git
+   cd netops-mini
+   ```
+
+2. Crea y activa el entorno virtual (en Windows PowerShell):
+
+   ```powershell
+   python -m venv .venv
+   .\.venv\Scripts\Activate.ps1
+   ```
+
+3. Instala las dependencias necesarias:
+
+   ```powershell
+   pip install fastapi uvicorn requests streamlit pandas
+   ```
+
+4. Opcionalmente, copia el archivo de ejemplo `.env.example` a `.env` para referencia de configuración:
+
+   ```powershell
+   Copy-Item .env.example .env
+   ```
+
+   Contenido de `.env.example`:
+
+   ```env
+   DATABASE_PATH=netops.db
+   ```
