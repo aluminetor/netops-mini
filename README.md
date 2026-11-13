@@ -105,3 +105,30 @@ Inicia la interfaz web para visualizar métricas, gráfico de barras por priorid
 ```powershell
 python -m streamlit run dashboard.py
 ```
+
+## Reglas de incidentes y base de datos
+
+### Umbrales de latencia (`cliente.py`)
+
+Al consultar `/sedes`, el cliente evalúa `latencia_ms` para cada sede y crea tickets de tipo `"Latencia elevada"` con estado `"Abierto"`:
+
+| Condición de latencia | Prioridad asignada |
+| --- | --- |
+| `<= 100 ms` | No genera ticket |
+| `100 < latencia_ms <= 150 ms` | `Prioridad Media` |
+| `> 150 ms` | `Prioridad Alta` |
+
+Antes de insertar un nuevo registro, `existe_ticket_abierto(sede, tipo)` en `database.py` comprueba si ya existe un ticket con `estado = 'Abierto'` para esa sede y tipo, evitando duplicados.
+
+### Esquema de la base de datos (`netops.db`)
+
+Tabla `tickets`:
+
+| Columna | Tipo | Restricciones |
+| --- | --- | --- |
+| `id` | `INTEGER` | `PRIMARY KEY AUTOINCREMENT` |
+| `sede` | `TEXT` | `NOT NULL` |
+| `tipo` | `TEXT` | `NOT NULL` |
+| `latencia_ms` | `INTEGER` | `NOT NULL` |
+| `prioridad` | `TEXT` | `NOT NULL` |
+| `estado` | `TEXT` | `NOT NULL` |
