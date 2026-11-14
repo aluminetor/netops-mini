@@ -1,4 +1,7 @@
 import sqlite3
+from database import cerrar_ticket
+
+cerrar_ticket(1)
 
 conexion = sqlite3.connect("netops.db")
 cursor = conexion.cursor()
