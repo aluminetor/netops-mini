@@ -59,18 +59,18 @@ def existe_ticket_abierto(sede,tipo):
 
     return resultado
 
-    def cerrar_ticket(ticket_id):
-        conexion = sqlite3.connect("netops.db")
-        cursor = conexion.cursor()
+def cerrar_ticket(ticket_id):
+    conexion = sqlite3.connect("netops.db")
+    cursor = conexion.cursor()
 
-        cursor.execute(
-            """
-            UPDATE tickets
-            SET estado = "Cerrado"
-            WHERE id = ticket_id
-            """,
-            ("Cerrado", ticket_id)
-        )
+    cursor.execute(
+        """
+        UPDATE tickets
+        SET estado = ?
+        WHERE id = ?
+        """,
+        ("Cerrado", ticket_id)
+    )
 
-        conexion.commit()
-        conexion.close()
+    conexion.commit()
+    conexion.close()
