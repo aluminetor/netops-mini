@@ -65,20 +65,22 @@ else:
 st.subheader("Incidentes registrados")
 st.dataframe(df, use_container_width=True)
 
+st.subheader("Gestión de tickets")
+
 tickets_abiertos = df[df["Estado"] == "Abierto"]
 
 if not tickets_abiertos.empty:
     ticket_id = st.selectbox(
         "Selecciona un ticket abierto",
-        options=tickets_abiertos["ID"]
+        options=tickets_abiertos["ID"],
+        key="ticket_abierto"
     )
 
     if st.button("Cerrar ticket", key="cerrar_ticket"):
         cerrar_ticket(ticket_id)
-        conexion.close()
         st.success("Ticket cerrado correctamente")
         st.rerun()
 else:
     st.info("No hay tickets abiertos.")
-
+    
 conexion.close()
