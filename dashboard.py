@@ -40,6 +40,7 @@ with col3:
 
 cursor.execute("SELECT * FROM tickets")
 tickets = cursor.fetchall()
+conexion.close()
 
 df = pd.DataFrame(
     tickets,
@@ -77,10 +78,8 @@ if not tickets_abiertos.empty:
     )
 
     if st.button("Cerrar ticket", key="cerrar_ticket"):
-        cerrar_ticket(ticket_id)
-        st.success("Ticket cerrado correctamente")
+        cerrar_ticket(int(ticket_id))
+        st.toast("Ticket cerrado correctamente")
         st.rerun()
 else:
     st.info("No hay tickets abiertos.")
-    
-conexion.close()
