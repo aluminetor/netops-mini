@@ -1,134 +1,75 @@
 # NetOps Mini
 
-Sistema ligero de monitoreo de red y gestión de incidentes construido con **FastAPI**, **SQLite** y **Streamlit**. Simula la consulta de métricas de conectividad por sede, genera tickets automáticos ante latencias elevadas evitando duplicados abiertos y visualiza los incidentes en un dashboard interactivo.
+NetOps Mini es un proyecto práctico en Python para simular el monitoreo de conectividad de varias sedes y gestionar incidentes de latencia. Una API FastAPI entrega métricas simuladas, un cliente genera tickets en SQLite y un dashboard Streamlit permite revisar y cerrar incidentes.
 
-## Características
+El proyecto sirve como práctica de automatización de redes, APIs REST, SQL y visualización de indicadores operativos.
 
-- **API REST de sedes**: Expone métricas simuladas de latencia y pérdida de paquetes por sede (`main.py`).
-- **Cliente de monitoreo y generación de tickets**: Consulta la API y registra incidentes en SQLite según umbrales de latencia (`cliente.py`).
-- **Prevención de duplicados**: Verifica si ya existe un ticket abierto para la misma sede y tipo antes de insertar uno nuevo (`database.py`).
-- **Consulta por consola**: Muestra todos los tickets registrados, el promedio de latencia y el total de incidentes (`consultar.py`).
-- **Dashboard interactivo**: Visualiza métricas clave, gráfico de barras por prioridad y tabla de incidentes en Streamlit (`dashboard.py`).
-
-## Estructura del proyecto
+## Cómo funciona
 
 ```text
-netops-mini/
-├── main.py          # API FastAPI con endpoints /sedes y /saludo
-├── database.py      # Funciones de acceso y creación de tabla en SQLite (netops.db)
-├── cliente.py       # Script cliente que consulta /sedes y crea tickets en la BD
-├── consultar.py     # Script de consulta rápida de tickets y métricas por consola
-├── dashboard.py     # Dashboard web en Streamlit
-├── .env.example     # Ejemplo de variable de entorno (DATABASE_PATH)
-└── .gitignore       # Exclusiones de Git (.env, .venv/, __pycache__/, *.py[cod])
+API FastAPI → cliente Python → SQLite ↔ dashboard Streamlit
 ```
 
-## Requisitos e instalación
+| Archivo | Función |
+| --- | --- |
+| `main.py` | Expone las métricas simuladas en `GET /sedes` y un mensaje de bienvenida en `GET /saludo`. |
+| `cliente.py` | Consulta la API una vez por ejecución, aplica los umbrales y registra los tickets nuevos. |
+| `database.py` | Crea la tabla de tickets y contiene las operaciones para guardar, comprobar y cerrar incidentes. |
+| `dashboard.py` | Muestra el total de tickets, la latencia media de los incidentes, el total de prioridad alta, un gráfico por prioridad y la tabla de incidentes. Permite cerrar tickets abiertos. |
+| `consultar.py` | Lista tickets y muestra su latencia media y el total en consola. Al ejecutarse, primero intenta cerrar el ticket con ID 1. |
+| `netops.db` | Almacena los tickets abiertos y cerrados. Los scripts usan este archivo desde el directorio de trabajo. |
 
-- **Python 3**
-- Dependencias utilizadas por los módulos del proyecto:
-  - `fastapi`
-  - `uvicorn`
-  - `requests`
-  - `streamlit`
-  - `pandas`
+La detección usa umbrales fijos de latencia. La API también devuelve la pérdida de paquetes como dato informativo.
 
-### Configuración del entorno
+| Latencia | Resultado |
+| --- | --- |
+| Hasta 100 ms | Sin ticket |
+| Más de 100 ms y hasta 150 ms | Prioridad Media |
+| Más de 150 ms | Prioridad Alta |
 
-1. Clona el repositorio y entra al directorio del proyecto:
+Cada incidente se registra como **Latencia elevada** con estado **Abierto**. En ejecuciones sucesivas, el cliente comprueba si existe un ticket abierto del mismo tipo para la misma sede antes de crear otro. El cierre es manual y el ticket cerrado queda en el historial.
 
-   ```powershell
-   git clone https://github.com/aluminetor/netops-mini.git
-   cd netops-mini
-   ```
+## Instalación
 
-2. Crea y activa el entorno virtual (en Windows PowerShell):
+Necesitas Python 3 con `pip`. Desde la raíz del proyecto, ejecuta en PowerShell:
 
-   ```powershell
-   python -m venv .venv
-   .\.venv\Scripts\Activate.ps1
-   ```
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install fastapi uvicorn requests streamlit pandas
+```
 
-3. Instala las dependencias necesarias:
-
-   ```powershell
-   pip install fastapi uvicorn requests streamlit pandas
-   ```
-
-4. Opcionalmente, copia el archivo de ejemplo `.env.example` a `.env` para referencia de configuración:
-
-   ```powershell
-   Copy-Item .env.example .env
-   ```
-
-   Contenido de `.env.example`:
-
-   ```env
-   DATABASE_PATH=netops.db
-   ```
+SQLite está incluido en la biblioteca estándar de Python.
 
 ## Uso
 
-### 1. Iniciar la API de sedes
+1. Inicia la API desde la raíz del proyecto y deja la terminal abierta.
 
-Ejecuta el servidor FastAPI con Uvicorn:
+   ```powershell
+   python -m uvicorn main:app --reload
+   ```
 
-```powershell
-python -m uvicorn main:app --reload
-```
+   Puedes consultar la [documentación interactiva de la API](http://127.0.0.1:8000/docs) o ver directamente las [métricas simuladas](http://127.0.0.1:8000/sedes).
 
-Endpoints disponibles en `http://127.0.0.1:8000`:
+2. En otra terminal, desde la misma carpeta y con el entorno virtual activo, ejecuta el cliente. Este prepara la tabla `tickets` si todavía no existe.
 
-- `GET /saludo`: Devuelve un mensaje de bienvenida (`{"mensaje": "Bienvenido a NetOps Mini"}`).
-- `GET /sedes`: Devuelve la lista de sedes con sus métricas (`nombre`, `latencia_ms`, `perdida_paquetes`).
+   ```powershell
+   python cliente.py
+   ```
 
-### 2. Ejecutar el cliente de monitoreo
+3. Abre el dashboard desde esa misma carpeta.
 
-Con la API en ejecución, corre el cliente para consultar `/sedes` y registrar incidentes en `netops.db`:
+   ```powershell
+   python -m streamlit run dashboard.py
+   ```
 
-```powershell
-python cliente.py
-```
+   Abre la URL que muestra Streamlit. En **Gestión de tickets**, selecciona el ID de un ticket abierto y pulsa **Cerrar ticket**. El estado cambia a **Cerrado** en la tabla.
 
-### 3. Consultar tickets desde consola
+## Prueba manual de integración
 
-Para listar los tickets almacenados, ver la latencia promedio y la cantidad total de tickets:
+Con la API y el dashboard en ejecución, comprueba el ciclo con los datos simulados. Bogotá tiene una latencia de 135 ms y es la única sede que supera el umbral.
 
-```powershell
-python consultar.py
-```
-
-### 4. Abrir el dashboard en Streamlit
-
-Inicia la interfaz web para visualizar métricas, gráfico de barras por prioridad y la tabla de incidentes:
-
-```powershell
-python -m streamlit run dashboard.py
-```
-
-## Reglas de incidentes y base de datos
-
-### Umbrales de latencia (`cliente.py`)
-
-Al consultar `/sedes`, el cliente evalúa `latencia_ms` para cada sede y crea tickets de tipo `"Latencia elevada"` con estado `"Abierto"`:
-
-| Condición de latencia | Prioridad asignada |
-| --- | --- |
-| `<= 100 ms` | No genera ticket |
-| `100 < latencia_ms <= 150 ms` | `Prioridad Media` |
-| `> 150 ms` | `Prioridad Alta` |
-
-Antes de insertar un nuevo registro, `existe_ticket_abierto(sede, tipo)` en `database.py` comprueba si ya existe un ticket con `estado = 'Abierto'` para esa sede y tipo, evitando duplicados.
-
-### Esquema de la base de datos (`netops.db`)
-
-Tabla `tickets`:
-
-| Columna | Tipo | Restricciones |
-| --- | --- | --- |
-| `id` | `INTEGER` | `PRIMARY KEY AUTOINCREMENT` |
-| `sede` | `TEXT` | `NOT NULL` |
-| `tipo` | `TEXT` | `NOT NULL` |
-| `latencia_ms` | `INTEGER` | `NOT NULL` |
-| `prioridad` | `TEXT` | `NOT NULL` |
-| `estado` | `TEXT` | `NOT NULL` |
+1. Ejecuta `python cliente.py`. Si ya existe un ticket abierto de Bogotá, puedes usarlo como punto de partida. En caso contrario, debe aparecer uno de **Prioridad Media**.
+2. Ejecuta el cliente otra vez. La salida esperada es `TICKETS: []`.
+3. Cierra el ticket de Bogotá desde el dashboard y verifica que figure como **Cerrado**.
+4. Ejecuta nuevamente el cliente y recarga el dashboard. Debe aparecer un ticket **Abierto** con un ID nuevo y el anterior debe seguir en el historial.
