@@ -1,6 +1,7 @@
 import sqlite3
 import streamlit as st
 import pandas as pd 
+from database import cerrar_ticket
 conexion = sqlite3.connect("netops.db")
 cursor = conexion.cursor()
 
@@ -64,5 +65,20 @@ else:
 st.subheader("Incidentes registrados")
 st.dataframe(df, use_container_width=True)
 
+tickets_abiertos = df[df["Estado"] == "Abierto"]
+
+if not tickets_abiertos.empty:
+    ticket_id = st.selectbox(
+        "Selecciona un ticket abierto",
+        options=tickets_abiertos["ID"]
+    )
+
+    if st.button("Cerrar ticket", key="cerrar_ticket"):
+        cerrar_ticket(ticket_id)
+        conexion.close()
+        st.success("Ticket cerrado correctamente")
+        st.rerun()
+else:
+    st.info("No hay tickets abiertos.")
 
 conexion.close()
