@@ -29,5 +29,5 @@ def obtener_sedes():
 def saludar():
     return {"mensaje": "Bienvenido a NetOps Mini"}
 # for sede in sedes:
-#     print(f"{sede["nombre"]}: {sede["latencia_ms"]} ms")
+
 
