@@ -28,6 +28,5 @@ def obtener_sedes():
 @app.get("/saludo")
 def saludar():
     return {"mensaje": "Bienvenido a NetOps Mini"}
-# for sede in sedes:
 
 
